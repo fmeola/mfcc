@@ -1,0 +1,126 @@
+\documentclass[a4paper,10pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{mathtools}
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage[spanish,activeacute]{babel}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{incgraph,tikz}
+\pagestyle{fancy}
+
+\usepackage{color}
+\usepackage{listings}
+\lstset{ %
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+numbers=left,                   % where to put the line-numbers
+numberstyle=\footnotesize,      % the size of the fonts that are used for the line-numbers
+stepnumber=1,                   % the step between two line-numbers. If it is 1 each line will be numbered
+numbersep=10pt,                  % how far the line-numbers are from the code
+backgroundcolor=\color{white},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,           % adds a frame around the code
+tabsize=4,          % sets default tabsize to 2 spaces
+captionpos=b,           % sets the caption-position to bottom
+breaklines=true,        % sets automatic line breaking
+breakatwhitespace=false,    % sets if automatic breaks should only happen at whitespace
+escapeinside={\%*}{*)}          % if you want to add a comment within your code
+}
+\renewcommand{\lstlistingname}{Código}
+\usepackage{float}
+\restylefloat{table}
+\makeatletter
+\def\verbatim{\small\@verbatim \frenchspacing\@vobeyspaces \@xverbatim}
+\makeatother
+
+\title{Speaker Recognition}
+
+\lhead{Métodos Numéricos Avanzados}
+\rhead{Análisis Armónico: Speaker Recognition}
+
+\begin{document}
+
+\begin{center}
+\textbf{\Huge{Speaker Recognition}}
+\end{center}
+
+\begin{center}
+\textbf{INTEGRANTES: Meola Franco Román, Puente Julieta, Strubolini Diego Martín}
+
+\textbf{ITBA Segundo Cuatrimestre 2014}
+\end{center}
+
+\begin{center}
+\text{PALABRAS CLAVE: transformada de fourier, mfcc}
+\end{center}
+
+\begin{center}
+\begin{large}
+Resumen
+\end{large}
+\end{center}
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam id dolor id nibh ultricies vehicula ut id elit. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Curabitur blandit tempus porttitor. Maecenas faucibus mollis interdum. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+\section{Introducción}
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam id dolor id nibh ultricies vehicula ut id elit. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Curabitur blandit tempus porttitor. Maecenas faucibus mollis interdum. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+\section{Metodología}
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam id dolor id nibh ultricies vehicula ut id elit. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Curabitur blandit tempus porttitor. Maecenas faucibus mollis interdum. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+\subsection{Implementación}
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam id dolor id nibh ultricies vehicula ut id elit. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Curabitur blandit tempus porttitor. Maecenas faucibus mollis interdum. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Lorem ipsum dolor sit amet, consectetur adipiscing elit.\newline
+\begin{lstlisting}[language=Octave, caption = Pre-énfasis]
+function yp = preemphasis(y, rows)
+
+a = 0.97;
+
+yp(1) = y(1);
+
+for n = 2:rows
+	yp(n) = y(n) - a * y(n-1);
+end
+
+yp;
+\end{lstlisting}
+
+\section{Resultados}
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam id dolor id nibh ultricies vehicula ut id elit. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Curabitur blandit tempus porttitor. Maecenas faucibus mollis interdum. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+\newline
+Una Tabla
+
+\begin{center}
+\begin{table}[h]
+\centering
+\begin{tabular}{cc}
+\hline
+\textbf{Dimensión (nxn)} & \textbf{Tiempo (ms)} \\ \hline
+5                  & 33                 \\
+15                 & 74                 \\
+30                 & 4475                 \\
+50                 & 21393                \\
+100                & 243651                   
+\end{tabular}
+\caption[Texto del índice (opcional)]{Tiempo transcurrido del cálculo de autovalores en base a la dimensión N de la matriz.}
+\end{table}
+\end{center}
+
+\section{Conclusiones}
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam id dolor id nibh ultricies vehicula ut id elit. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Curabitur blandit tempus porttitor. Maecenas faucibus mollis interdum. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+\section{Bibliografía}
+\begin{itemize}
+
+\item Wei Han, Cheong-Fat Chan, Chiu-Sing Choy, and Kong-Pang Pun. An ef- ficient mfcc extraction method in speech recognition. In Proceedings IEEE International Symposium on Circuits and Systems, 2006. ISCAS 2006., pa- ges 4 pp.–, May 2006.
+\item Md Rashidul Hasan, Mustafa Jamil, Md Golam Rabbani, and Md Saifur Rahman. Speaker identification using mel frequency cepstral coefficients. In 3rd International Conference on Electrical \& Computer Engineering ICECE, volume 2004, 2004.
+\item Y. Linde, A Buzo, and R.M. Gray. An algorithm for vector quantizer design. IEEE Transactions on Communications, 28(1):84–95, Jan 1980.
+\item James Lyons. Mel frequency cepstral coefficient (mfcc) tutorial. 
+\url{http://practicalcryptography.com/miscellaneous/machine-learning/guide-mel-frequency-cepstral-coefficients-mfccs/}
+\item Manual de Funciones de Octave \url{https://www.gnu.org/software/octave/doc/interpreter/}
+\end{itemize} 
+
+\end{document}
