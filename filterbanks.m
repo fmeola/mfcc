@@ -13,7 +13,6 @@ for k=1:amount+2
   fb(k) = floor((fftsize+1)*fm(k)/(max*2));
 end
 
-  disp(fb);
 fbank = zeros(amount,fftsize/2+1);
 
 for j=1:amount
