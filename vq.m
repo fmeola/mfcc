@@ -46,12 +46,6 @@ function code = vq(data,nvector)
 		newdist = dist/n;
 		for k = 1:nvector
 			m = clus(k,n+1);
-			if m== 0
-				disp(k);
-				disp(n);
-				disp(rows(clus));
-				disp(columns(clus));
-			end
 			code(:,k) = mean(data(:,clus(k,1:m)).').';
 		end
 	end
