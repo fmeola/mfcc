@@ -1,6 +1,6 @@
 function res = main()
 
-	[y,fv,bps] = wavread('media/JuanPaula.wav');
+	[y,fv,bps] = wavread('media/HolaEnzo.wav');
 	coeforiginal = mfcc(y,fv);
 	coefvqoriginal = vq(coeforiginal,16);
 
@@ -25,6 +25,26 @@ function res = main()
   coefprueba5 = mfcc(y,fv);
   coefvqprueba5 = vq(coefprueba5,16);
 
+  [y,fv,bps] = wavread('media/susanaMonica.wav');
+  coefprueba6 = mfcc(y,fv);
+  coefvqprueba6 = vq(coefprueba6,16);
+
+  [y,fv,bps] = wavread('media/susanaDaniel.wav');
+  coefprueba7 = mfcc(y,fv);
+  coefvqprueba7 = vq(coefprueba7,16);
+
+  [y,fv,bps] = wavread('media/susanaJulieta.wav');
+  coefprueba8 = mfcc(y,fv);
+  coefvqprueba8 = vq(coefprueba8,16);
+
+  [y,fv,bps] = wavread('media/susanaDaniela.wav');
+  coefprueba9 = mfcc(y,fv);
+  coefvqprueba9 = vq(coefprueba9,16);
+
+  [y,fv,bps] = wavread('media/susanaAgostina.wav');
+  coefprueba10 = mfcc(y,fv);
+  coefvqprueba10 = vq(coefprueba10,16);
+
 
 	md1 = meandist(coefprueba1,coefvqoriginal);
 	disp(md1);
@@ -36,3 +56,13 @@ function res = main()
   disp(md4);
   md5 = meandist(coefprueba5,coefvqoriginal);
   disp(md5);
+  md6 = meandist(coefprueba6,coefvqoriginal);
+  disp(md6);
+  md7 = meandist(coefprueba7,coefvqoriginal);
+  disp(md7);
+  md8 = meandist(coefprueba8,coefvqoriginal);
+  disp(md8);
+  md9 = meandist(coefprueba9,coefvqoriginal);
+  disp(md9);
+  md10 = meandist(coefprueba10,coefvqoriginal);
+  disp(md10);
