@@ -12,13 +12,13 @@ overlap = overlap_percentage*frame_size;
 
 yp = preemphasis(y,rows(y));
 
-figure(1);
-plot(y);
-title("original");
+%figure(1);
+%plot(y);
+%title("original");
 
-figure(2);
-plot(yp);
-title("preemphasis");
+%figure(2);
+%plot(yp);
+%title("preemphasis");
 
 %funcion de hamming
 ham = hamming(frame_size);
@@ -32,10 +32,10 @@ for f = 1: total_frames
     yw = windowing(yp,frame_size,f,overlap,ham);
     yf = fft(yw);
     yper = periodogram(yf,frame_size);
-    if f == 4
-      figure(3)
-      plot(yper);
-    end
+    %if f == 4
+    %  figure(3)
+    %  plot(yper);
+    %end
     for fb = 1 : rows(fbanks)
     	energy = 0;
     	filterbank = fbanks(fb,:);
@@ -59,22 +59,22 @@ for f = 1: total_frames
     		cplus2 = coef(n);
     	else
     		cplus2 = coef(d+2);
-    	end	
+    	end
     	if d-2 < 1
     		cminus2 = coef(1);
     	else
     		cminus2 = coef(d-2);
-    	end	
+    	end
     	if d+1 > n
     		cplus1 = coef(n);
     	else
     		cplus1 = coef(d+1);
-    	end	
+    	end
     	if d-1 < 1
     		cminus1 = coef(1);
     	else
     		cminus1 = coef(d-1);
-    	end	
+    	end
     	coef(d+n) = 2 *((cplus2-cminus2)+(cplus1-cminus1))/10;
     end
     for k = 1 : n*2
