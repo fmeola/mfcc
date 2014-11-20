@@ -1,6 +1,6 @@
 %Llama a las demas funciones
 
-function mfcc = mfcc(y,fv)
+function mfcc = mfcc(y,fv,fbanks)
 
 overlap_percentage = 0.5;
 frame = 0.02; %20 ms
@@ -27,7 +27,11 @@ total_frames = floor(total_samples/overlap)-1;
 
 %Se iteran por los frames
 %sacarle magic numbers
-fbanks = filterbanks(300,fv/2, 33, 256);
+coef_amount = 13;
+filter_amount = 33;
+
+
+
 for f = 1: total_frames
     yw = windowing(yp,frame_size,f,overlap,ham);
     yf = fft(yw);
@@ -44,44 +48,35 @@ for f = 1: total_frames
     	end
     	filterenergies(fb)=energy;
     end
-    for n = 1 : 12
+    for n = 1 : (coef_amount - 1)
     	c=0;
-    	for k = 1 : 33
-    		c+=log(filterenergies(k))*cos(n*(k-0.5)*pi/33);
+    	for k = 1 : filter_amount
+    		c+=log(filterenergies(k))*cos(n*(k-0.5)*pi/filter_amount);
     	end
     	coef(n)=c;
     end
     energycoef = loggedenergy(y,frame_size);
     n+=1;
     coef(n)=energycoef;
-    for d = 1 : n
-    	if d+2 > n
-    		cplus2 = coef(n);
-    	else
-    		cplus2 = coef(d+2);
-    	end
-    	if d-2 < 1
-    		cminus2 = coef(1);
-    	else
-    		cminus2 = coef(d-2);
-    	end
-    	if d+1 > n
-    		cplus1 = coef(n);
-    	else
-    		cplus1 = coef(d+1);
-    	end
-    	if d-1 < 1
-    		cminus1 = coef(1);
-    	else
-    		cminus1 = coef(d-1);
-    	end
-    	coef(d+n) = 2 *((cplus2-cminus2)+(cplus1-cminus1))/10;
-    end
-    for k = 1 : n*2
-    	mfcc(k,f) = coef(k);
+    for k = 1 : n
+        mfcc(k,f) = coef(k);
     end
 end
-%hasta aca es el ejercicio 3.a
+%Se calculan los deltas
+delta(1,:) = (2*(mfcc(:,3)) + (mfcc(:,2)))/10;
+delta(2,:) = (2*(mfcc(:,4)) + (mfcc(:,3) - mfcc(:,1)))/10;
+for f = 3 : (total_frames-2)
+    delta(f,:) = (2*(mfcc(:,f+2) - mfcc(:,f-2)) + (mfcc(:,f+1) - mfcc(:,f-1)))/10;
+end
+delta(total_frames-1,:) = (2*(-1*mfcc(:,total_frames-3)) + (mfcc(:,total_frames) - mfcc(:,total_frames-2)))/10;
+delta(total_frames,:) = (2*(-1*mfcc(:,total_frames-2)) + (-1*mfcc(:,total_frames-1)))/10;
+
+%guardo los deltas
+for f = 1 : total_frames
+    for k = 1 : coef_amount
+        mfcc(coef_amount + k,f) = delta(f,k);
+    end
+end
 
 mfcc;
 
