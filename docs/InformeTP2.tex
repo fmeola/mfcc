@@ -55,7 +55,7 @@ escapeinside={\%*}{*)}          % if you want to add a comment within your code
 \end{center}
 
 \begin{center}
-\text{PALABRAS CLAVE: análisis armónico, speaker recognition, mfcc, transformada de fourier, mel-frecuencia, mel-cepstral }
+\text{PALABRAS CLAVE: análisis armónico, speaker recognition, mfcc, transformada de fourier, mel-cepstral }
 \end{center}
 
 \begin{center}
@@ -64,16 +64,14 @@ Resumen
 \end{large}
 \end{center}
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam id dolor id nibh ultricies vehicula ut id elit. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Curabitur blandit tempus porttitor. Maecenas faucibus mollis interdum. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Este Trabajo Práctico Especial muestra una posible implementación de un reconocedor de habla en Octave basándonos en la transformada de Fourier para el cálculo de los coeficientes mel-cepstrales de distintas muestras de voz.
+
 
 \section{Introducción}
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam id dolor id nibh ultricies vehicula ut id elit. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Curabitur blandit tempus porttitor. Maecenas faucibus mollis interdum. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+El reconocimiento de habla automatizado por una máquina ha sido estudiado por décadas. Hay distintas formas de representaciones paramétricas para señales de acústica. Uno de los más usados es el MFCC o Mel-Frecuency Ceptrum. En el siguiente informe nos basaremos en el paper \textit{An efficient mfcc extraction method in speech recognition} de Wei Han, Cheong-Fat Chan, Chiu-Sing Choy, y Kong-Pang Pun (Ver [1]) y detallaremos una implementación propia en el lenguaje matemático Octave.
 
-\section{Metodología}
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam id dolor id nibh ultricies vehicula ut id elit. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Curabitur blandit tempus porttitor. Maecenas faucibus mollis interdum. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-
-\subsection{Implementación}
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam id dolor id nibh ultricies vehicula ut id elit. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Curabitur blandit tempus porttitor. Maecenas faucibus mollis interdum. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+\section{Implementación}
+Siguiendo los pasos de [1], detallaremos a continuación las principales funciones implementadas para obtener los coeficientes mel-cepstrales.
 \newline
 
 \begin{figure}[h]
@@ -82,121 +80,11 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam id dolor id nibh
 \caption{Diagrama de Trabajo}
 \end{figure}
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam id dolor id nibh ultricies vehicula ut id elit. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Curabitur blandit tempus porttitor. Maecenas faucibus mollis interdum. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+\subsection{Pre-emphasis}
 
-\subsection{Función Principal}
-
-\begin{lstlisting}[language=Octave, caption = mfcc.m]
-\%*Llama a las demas funciones*)
-
-function mfcc = mfcc(y,fv,fbanks)
-
-overlap_percentage = 0.5;
-frame = 0.02; \%20 ms
-
-total_samples = rows(y);
-frame_size = fv*frame;
-overlap = overlap_percentage*frame_size;
-
-yp = preemphasis(y,rows(y));
-
-\%*figure(1);*)
-\%*plot(y);*)
-\%*title("$original$");*)
-
-\%*figure(2);*)
-\%*plot(yp);*)
-\%*title("$preemphasis$");*)
-
-\%*funcion de hamming*)
-ham = hamming(frame_size);
-
-total_frames = floor(total_samples/overlap)-1;
-
-\%*Se iteran por los frames*)
-\%*sacarle magic numbers*)
-coef_amount = 13;
-filter_amount = 33;
-
-for f = 1: total_frames
-    yw = windowing(yp,frame_size,f,overlap,ham);
-    yf = fft(yw);
-    yper = periodogram(yf,frame_size);
-    \%*if f == 4*)
-    \%*  figure(3)*)
-    \%*  plot(yper);*)
-    \%*end*)
-    for fb = 1 : rows(fbanks)
-    	energy = 0;
-    	filterbank = fbanks(fb,:);
-    	for fftpoint = 1 : columns(filterbank)
-    		energy += filterbank(fftpoint)*yper(fftpoint);
-    	end
-    	filterenergies(fb)=energy;
-    end
-    for n = 1 : (coef_amount - 1)
-    	c=0;
-    	for k = 1 : filter_amount
-    		c+=log(filterenergies(k))*cos(n*(k-0.5)*pi/filter_amount);
-    	end
-    	coef(n)=c;
-    end
-    energycoef = loggedenergy(y,frame_size);
-    n+=1;
-    coef(n)=energycoef;
-    for k = 1 : n
-        mfcc(k,f) = coef(k);
-    end
-end
-\%*Se calculan los deltas*)
-delta(1,:) = (2*(mfcc(:,3)) + (mfcc(:,2)))/10;
-delta(2,:) = (2*(mfcc(:,4)) + (mfcc(:,3) - mfcc(:,1)))/10;
-for f = 3 : (total_frames-2)
-    delta(f,:) = (2*(mfcc(:,f+2) - mfcc(:,f-2)) + (mfcc(:,f+1) - mfcc(:,f-1)))/10;
-end
-delta(total_frames-1,:) = (2*(-1*mfcc(:,total_frames-3)) + (mfcc(:,total_frames) - mfcc(:,total_frames-2)))/10;
-delta(total_frames,:) = (2*(-1*mfcc(:,total_frames-2)) + (-1*mfcc(:,total_frames-1)))/10;
-
-\%*guardo los deltas*)
-for f = 1 : total_frames
-    for k = 1 : coef_amount
-        mfcc(coef_amount + k,f) = delta(f,k);
-    end
-end
-
-mfcc;
-\end{lstlisting}
-
-
-\begin{lstlisting}[language=Octave, caption = main.m]
-function res = main()
-sample_frequency = 8000;
-filter_amount = 33;
-
-fbanks = filterbanks(300,sample_frequency/2, filter_amount, 256);
-[y,fv,bps] = wavread('media/JuanDaniela.wav');
-coeforiginal = mfcc(y,fv,fbanks);
-coefvqoriginal = vq(coeforiginal,16);
-
-(...)
-
-disp("Daniela");
-
-[y,fv,bps] = wavread('media/HolaFranco.wav');
-coefprueba1 = mfcc(y,fv,fbanks);
-md1 = meandist(coefprueba1,coefvqoriginal);
-disp(md1);
-
-[y,fv,bps] = wavread('media/HolaSandra.wav');
-coefprueba2 = mfcc(y,fv,fbanks);
-md2 = meandist(coefprueba2,coefvqoriginal);
-disp(md2);
-
-(...)
-\end{lstlisting}
-
-\subsubsection{Pre-emphasis}
-
+En esta primera función obtendremos un aplanamiento de la señal. Tanto la constante \texttt{a} elegida para este procedimiento (Ver línea 3), como su implementación es similar a la enunciada en la fórmula (1) de [1].
+%\cite{han}
+\newline
 \begin{lstlisting}[language=Octave, caption = Pre-emphasis]
 function yp = preemphasis(y, rows)
 
@@ -210,10 +98,12 @@ end
 yp;
 \end{lstlisting}
 
-\subsubsection{Windowing and Overlap}
-
+\subsection{Windowing and Overlap}
+Esta etapa nos ayuda a reducir los cambios bruscos del principio y fin de la trama en donde va de cero a la señal y de la señal a cero respectivamente.
+Para esta función también utilizamos los mismos valores que en [1]. En la misma recibimos el vector de Hamming para ahorrarnos el cálculo del mismo en cada iteración. En la línea 5 utilizamos el vector de Hamming generado por el método \texttt{hamming} de Octave.
+\newline
 \begin{lstlisting}[language=Octave, caption = Windowing]
-function yw = windowing(y,frameSize,frameNmb,overlap, hamming)
+function yw = windowing(y,frameSize,frameNmb,overlap,hamming)
 
 i=1;
 for k=1 + overlap*(frameNmb -1) : frameSize + overlap*(frameNmb-1)
@@ -224,12 +114,15 @@ end
 yw;
 \end{lstlisting}
 
-\subsubsection{FFT}
+\subsection{FFT}
 
-	Para el cálculo de la transformada de Fourier utilizamos el método \texttt{fft} provisto por Octave.
+Para el cálculo de la transformada de Fourier utilizamos el método \texttt{fft} provisto por Octave. Éste método utiliza la Transformada Rápida de Fourier vista en clase.
 
-\subsubsection{Mel-frequency Filter Bank}
+\subsection{Mel-frequency Filter Bank}
 
+En esta etapa tomamos como referencia el tutorial sugerido por la cátedra [4]. En la función \texttt{filterbanks} de [4] se obtienen 26 filtros, pero en nuestro caso elegimos utilizar 33 filtros como en la descripción de [1]. Por el mismo motivo utilizamos 256 puntos de la transformada de Fourier obtenida en la etapa anterior. 
+Luego de revisar los detalles de [4] decidimos utilizar 300 como el valor del parámetro \texttt{min}, ya que usando 0 (como sugiere [1]) no obtuvimos los resultados esperados.
+\newline
 \begin{lstlisting}[language=Octave, caption = filterbanks]
 function fb = filterbanks(min,max,amount,fftsize)
 
@@ -258,12 +151,25 @@ end
 fb = fbank;
 fb;
 \end{lstlisting}
+El ciclo \texttt{for} de la línea 16 fue extraído de la implementación en Python de [4].
 
-\subsubsection{Cepstrum}
+\subsection{Cepstrum}
 
+En el siguiente ciclo calculamos los primeros 12 coeficientes mel-cepstrales. En el mismo utilizamos la ecuación (4) de [1].
+\newline
+\begin{lstlisting}[language=Octave, caption = Extracto de la función mfcc]
+for n = 1 : (coef_amount - 1)
+	c = 0;
+	for k = 1 : filter_amount
+		c += log(filterenergies(k))*cos(n*(k-0.5)*pi/filter_amount);
+	end
+	coef(n) = c;
+end
+\end{lstlisting}
 
-\subsubsection{Logged Energy}
-
+\subsection{Logged Energy}
+Para calcular el décimo-tercer coeficiente mel-cepstral utilizamos la función (5) de [1].
+\newline
 \begin{lstlisting}[language=Octave, caption = Logged Energy]
 function energy = loggedenergy(y,framesize)
 
@@ -276,10 +182,33 @@ energy = log(energy);
 energy;
 \end{lstlisting}
 
-\section{Resultados}
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam id dolor id nibh ultricies vehicula ut id elit. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Curabitur blandit tempus porttitor. Maecenas faucibus mollis interdum. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+\subsection{Deltas}
+En esta etapa obtuvimos los otros trece coeficientes (coeficientes deltas) para lograr el total de veintiséis coeficientes \texttt{mfcc} necesarios utilizando la función (6) de [1].
+Luego de solicitar asistencia a la cátedra, en los casos extremos donde el índice se va de rango se utilizó el vector nulo.
 \newline
 
+\begin{lstlisting}[language=Octave, caption = Extracto de la función mfcc]
+delta(1,:) = (2*(mfcc(:,3)) + (mfcc(:,2)))/10;
+delta(2,:) = (2*(mfcc(:,4)) + (mfcc(:,3) - mfcc(:,1)))/10;
+for f = 3 : (total_frames-2)
+	delta(f,:) = (2*(mfcc(:,f+2) - mfcc(:,f-2)) + (mfcc(:,f+1) - mfcc(:,f-1)))/10;
+end
+delta(total_frames-1,:) = (2*(-1*mfcc(:,total_frames-3)) + (mfcc(:,total_frames) - mfcc(:,total_frames-2)))/10;
+delta(total_frames,:) = (2*(-1*mfcc(:,total_frames-2)) + (-1*mfcc(:,total_frames-1)))/10;
+\end{lstlisting}
+
+\subsection{MeanDist y VQ}
+Luego de obtener los coeficientes \texttt{mfcc} de cada trama se extrajeron 16 vectores representativos a partir de la función \texttt{vq}.  
+Estos vetores se compararon con los \texttt{mfcc} de los audios de entrenamiento, utilizando la función \texttt{meandist} provista por la cátedra.
+
+\section{Resultados}
+Luego de probar todos los audios de prueba y comparándolos con los audios de prueba obtuvimos los siguientes resultados. En las tablas detallamos:
+\begin{itemize}
+\item Persona: el nombre de la persona que grabó el audio de prueba.
+\item Coincidencia: Si el programa identificó correctamente el audio de entrenamiento.
+\item Falsa Coincidencia: En caso de no haber coincidencia se indica el nombre de la persona que el programa asumió.
+\end{itemize}
+Se muestran los resultados para las frases de prueba "$Susana"$ y "$Juan"$.
 \begin{center}
 \begin{table}[h]
 \centering
@@ -294,11 +223,10 @@ Diego&Si&-\\
 Monica&No&Julieta\\
 Julieta&No&Sandra\\
 Daniela&No&Juli\\
-Agustina&No&Sandra\\
-Patricio&No&?\\
+Agostina&No&Sandra\\
 Sebastián&Si&-\\
 \end{tabular}
-\caption[Texto del índice (opcional)]{Susana}
+\caption[Texto del índice (opcional)]{Susana: 50\% de efectividad}
 \end{table}
 \end{center}
 
@@ -316,27 +244,29 @@ Diego&Si&-\\
 Monica&No&Julieta\\
 Julieta&Si&-\\
 Daniela&Si&-\\
-Agustina&No&Julieta\\
-Patricio&No&Sebastián\\
+Agostina&No&Julieta\\
 Sebastián&Si&-\\
 \end{tabular}
-\caption[Texto del índice (opcional)]{Juan}
+\caption[Texto del índice (opcional)]{Juan: 60\% de efectividad}
 \end{table}
 \end{center}
 
+Como se puede ver la efectividad es mayor al 50\%, lo que consideramos un resultando decente pero no ideal. Hay que tener en cuenta que si tomamos como acertada la elección de cualquier miembro de la familia y del mismo sexo para un sujeto de prueba, la tasa de efectividad aumenta a un 80\%. Esto se ve reflejado en las pruebas de Enzo con Franco (Padre e Hijo), Mónica y Julieta (Madre e Hija) y Agostina con Julieta (Hermanas). Asumimos que la frecuencia entre voces de una misma familia, siendo las mismas de mismo sexo, son similares.
+
+\section{Problemas Encontrados}
+Uno de los principales problemas encontrados fue que con ciertos archivos de audio los vectores generados por nuestra implementación variaban considerablemente en dimensión, lo que generaba problemas de rangos inválidos. Una de las características que encontramos en común entre estos archivos eran que contenían silencios absolutos en el medio, lo que suponemos fue la causa de estos problemas.
+
 \section{Conclusiones}
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam id dolor id nibh ultricies vehicula ut id elit. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Curabitur blandit tempus porttitor. Maecenas faucibus mollis interdum. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Como conclusión y para terminar, creemos que deberíamos haber elegido frases de prueba de mayor longitud (no de una sola palabra). Decidimos trabajar con frases cortas para reducir el tiempo de procesamiento de la función, que luego nos dimos cuenta que sacrificó efectividad. Si bien, en un principio esperábamos tasas de efectividad más altas a las conseguidas, los resultados conseguidos siguen siendo mejores a una simple elección aleatoria.
 
-\section{Bibliografía}
-\begin{itemize}
-
-\item Wei Han, Cheong-Fat Chan, Chiu-Sing Choy, and Kong-Pang Pun. An ef- ficient mfcc extraction method in speech recognition. In Proceedings IEEE International Symposium on Circuits and Systems, 2006. ISCAS 2006., pa- ges 4 pp.–, May 2006.
-\item Md Rashidul Hasan, Mustafa Jamil, Md Golam Rabbani, and Md Saifur Rahman. Speaker identification using mel frequency cepstral coefficients. In 3rd International Conference on Electrical \& Computer Engineering ICECE, volume 2004, 2004.
-\item Y. Linde, A Buzo, and R.M. Gray. An algorithm for vector quantizer design. IEEE Transactions on Communications, 28(1):84–95, Jan 1980.
-\item James Lyons. Mel frequency cepstral coefficient (mfcc) tutorial. 
+\begin{thebibliography}{9}
+\bibitem{han} Wei Han, Cheong-Fat Chan, Chiu-Sing Choy, and Kong-Pang Pun. An efficient mfcc extraction method in speech recognition. In Proceedings IEEE International Symposium on Circuits and Systems, 2006. ISCAS 2006., pa- ges 4 pp.–, May 2006.
+\bibitem{hasan} Md Rashidul Hasan, Mustafa Jamil, Md Golam Rabbani, and Md Saifur Rahman. Speaker identification using mel frequency cepstral coefficients. In 3rd International Conference on Electrical \& Computer Engineering ICECE, volume 2004, 2004.
+\bibitem{linde} Y. Linde, A Buzo, and R.M. Gray. An algorithm for vector quantizer design. IEEE Transactions on Communications, 28(1):84–95, Jan 1980.
+\bibitem{} James Lyons. Mel frequency cepstral coefficient (mfcc) tutorial. 
 \url{http://practicalcryptography.com/miscellaneous/machine-learning/guide-mel-frequency-cepstral-coefficients-mfccs/}
-\item Manual de Funciones de Octave \url{https://www.gnu.org/software/octave/doc/interpreter/}
-\end{itemize} 
+\bibitem{} Manual de Funciones de Octave \url{https://www.gnu.org/software/octave/doc/interpreter/}
+\end{thebibliography}
 
 \section{Funciones Auxiliares}
 
@@ -365,5 +295,9 @@ end
 
 yp;
 \end{lstlisting}
+
+\pagebreak
+
+\tableofcontents
 
 \end{document}
